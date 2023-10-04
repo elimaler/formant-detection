@@ -1,0 +1,5 @@
+numpy==1.21.2
+pyaudio==0.2.11
+matplotlib==3.4.3
+pydub==0.25.1
+scipy==1.7.3
