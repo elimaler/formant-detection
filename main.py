@@ -3,10 +3,11 @@ import pyaudio
 import analyseSample
 from collections import deque
 from matplotlib import pyplot as plt
+import time
 
 # activate this to make plot
 # this uses a lot of performance and is prone to crash
-PLOT = False
+PLOT = True
 
 # Constants
 SAMPLE_RATE = 44100  # Adjust as needed
@@ -79,15 +80,27 @@ try:
         # only continue on audio longer than half a second
         if len(audio_array)>SAMPLE_RATE/2:
             # get formants
+            # Record the start time
+            start_time = time.time()
+
+            # Call your function
             formants = analyseSample.findFormantsFFT(audio_array, SAMPLE_RATE)
-            # formants, data = analyseSample.find_formants(audio_array, SAMPLE_RATE)
+            #formants, data = analyseSample.find_formants(audio_array, SAMPLE_RATE)
+
+            # Record the end time
+            end_time = time.time()
+            # print(end_time-start_time)
             # Display the detected harmonic frequencies
-            if len(formants) ==3:
+            if len(formants) >= 2:
                 # print found formants
                 print("Detected formants:")
                 print(f"\tR1: {formants[0]:.0f}Hz")
                 print(f"\tR2: {formants[1]:.0f}Hz")
-                print(f"\tR3: {formants[2]:.0f}Hz")
+                if len(formants)==3:
+                    print(f"\tR3: {formants[2]:.0f}Hz")
+                if len(formants) ==2:
+                    formants = np.append(formants, np.nan)
+
                 if PLOT:
                     # Append the formant data to the deque
                     formant_data.append(formants)

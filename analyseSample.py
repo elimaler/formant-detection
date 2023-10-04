@@ -4,7 +4,6 @@ import scipy.signal as signal
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-
 def filter(frame, w):
     # Apply the median filter
     window_size = 2 * w + 1
@@ -39,6 +38,7 @@ def findFormantsFFT(audio_array, SAMPLE_RATE):
 
     # Find the peaks in the magnitude data
     peaks, _ = signal.find_peaks(filtered_magnitude, height=0, distance=100)  # You may need to adjust the "height" and "distance" parameters
+  
 
     # Sort the peaks by magnitude (highest first)
     sorted_peak_indices = np.argsort(filtered_magnitude[peaks])[::-1]
@@ -46,7 +46,19 @@ def findFormantsFFT(audio_array, SAMPLE_RATE):
 
     # Extract the frequencies of the top three peaks
     top_three_peak_frequencies = filtered_frequency_axis[sorted_peaks[:3]]
+    
+    
     top_three_peak_frequencies.sort()
+    r3_range = 2200
+    i = 2
+    if len(top_three_peak_frequencies)<3:
+        return top_three_peak_frequencies
+    while top_three_peak_frequencies[2] < r3_range:
+        i += 1
+        if sum([filtered_frequency_axis[i]>r3_range for i,x in enumerate(sorted_peaks[2:])]) == 0:
+            return top_three_peak_frequencies[:2]
+        else:
+            top_three_peak_frequencies[2] = sorted_peaks[i]
     return top_three_peak_frequencies
 
 
@@ -143,21 +155,3 @@ def plot_spectogram(data):
     plt.show()
 
 
-
-
-
-
-
-
-# # Load the MP3 audio file using pydub
-# audio = AudioSegment.from_mp3('u.mp3')  # Replace with your .mp3 file
-
-# # Convert to numpy array
-# audio_data = np.array(audio.get_array_of_samples())
-
-# # Sample rate of the audio data (adjust if needed)
-# sample_rate = audio.frame_rate
-
-
-# (mean1, mean2, mean3), (Sxx, frequencies, times, (start_frequency, end_frequency)) = find_formants(audio_data, sample_rate)
-# # plot_spectogram(Sxx, frequencies, times, start_frequency, end_frequency)
