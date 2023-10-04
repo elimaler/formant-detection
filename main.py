@@ -79,9 +79,10 @@ try:
         # only continue on audio longer than half a second
         if len(audio_array)>SAMPLE_RATE/2:
             # get formants
-            formants, data = analyseSample.find_formants(audio_array, SAMPLE_RATE)
+            formants = analyseSample.findFormantsFFT(audio_array, SAMPLE_RATE)
+            # formants, data = analyseSample.find_formants(audio_array, SAMPLE_RATE)
             # Display the detected harmonic frequencies
-            if formants:
+            if len(formants) ==3:
                 # print found formants
                 print("Detected formants:")
                 print(f"\tR1: {formants[0]:.0f}Hz")

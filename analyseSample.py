@@ -11,9 +11,53 @@ def filter(frame, w):
     smoothed_frame = signal.medfilt(frame, kernel_size=window_size)
 
     # Smooth the result with a moving average
-    smoothed_frame = signal.convolve(smoothed_frame, np.ones(20) / 20, mode='same')
+    smoothed_frame = signal.convolve(smoothed_frame, np.ones(150) / 150, mode='same')
 
     return smoothed_frame
+
+
+def findFormantsFFT(audio_array, SAMPLE_RATE):
+    
+    fft_result = np.fft.fft(audio_array)
+
+    # Calculate the frequency axis
+    frequency_axis = np.fft.fftfreq(len(audio_array), d=1.0 / SAMPLE_RATE)[:len(audio_array) // 2]
+    # Define the frequency range to keep (0-3500 Hz)
+    frequency_min = 0
+    frequency_max = 3500
+
+    # Find the indices corresponding to the desired frequency range
+    indices = np.where((frequency_axis >= frequency_min) & (frequency_axis <= frequency_max))
+
+    # Extract the magnitude values for the selected frequency range
+    filtered_magnitude = np.abs(fft_result[indices])
+    filtered_magnitude = filter(filtered_magnitude, 100)
+    # Create a filtered frequency axis
+    filtered_frequency_axis = frequency_axis[indices]
+    high_pass = np.array([1 / (1 + np.exp(-0.01 * (x - 100))) for x in filtered_frequency_axis])
+    filtered_magnitude = filtered_magnitude * high_pass
+
+    # Find the peaks in the magnitude data
+    peaks, _ = signal.find_peaks(filtered_magnitude, height=0, distance=100)  # You may need to adjust the "height" and "distance" parameters
+
+    # Sort the peaks by magnitude (highest first)
+    sorted_peak_indices = np.argsort(filtered_magnitude[peaks])[::-1]
+    sorted_peaks = peaks[sorted_peak_indices]
+
+    # Extract the frequencies of the top three peaks
+    top_three_peak_frequencies = filtered_frequency_axis[sorted_peaks[:3]]
+    top_three_peak_frequencies.sort()
+    return top_three_peak_frequencies
+
+
+    # # Plot the FFT output as a line plot
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(filtered_frequency_axis, filtered_magnitude)  # Plot the magnitude of FFT
+    # plt.xlabel('Frequency (Hz)')
+    # plt.ylabel('Magnitude')
+    # plt.title('FFT Output')
+    # plt.grid(True)
+    # plt.show()
 
 
 def find_formants(audio_data, sample_rate, target_frame_rate=5):
