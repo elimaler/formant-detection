@@ -7,7 +7,7 @@ import time
 
 # activate this to make plot
 # this uses a lot of performance and is prone to crash
-PLOT = True
+PLOT = False
 
 # Constants
 SAMPLE_RATE = 44100  # Adjust as needed
