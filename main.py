@@ -38,25 +38,31 @@ if PLOT:
 
 
 try:
-    print("STARTING... if nothing happens either hold your vowel sound longer or adjust the treshold for audio.")
+    print("STARTING... if n`othing happens either hold your vowel sound longer or adjust the treshold for audio.")
     print("Listening for vowel sounds...")
     pause_audio = False
 
     while True:
         # Read 1 second's worth of audio data
         audio_data = bytearray()
+        # get the data for the second
         for _ in range(int(SAMPLE_RATE / CHUNK_SIZE)):
             audio_chunk = stream.read(CHUNK_SIZE)
             audio_data.extend(audio_chunk)
         
 
         audio_array = np.frombuffer(audio_data, dtype=np.int16)
+        # change this threshold for microphone.
         audio_threshold = 100
+        # filter audio less than threshold
         audio_array = np.array([x for x in audio_array if np.abs(x)>audio_threshold])
+        # only continue on audio longer than half a second
         if len(audio_array)>SAMPLE_RATE/2:
+            # get formants
             formants, data = analyseSample.find_formants(audio_array, SAMPLE_RATE)
             # Display the detected harmonic frequencies
             if formants:
+                # print found formants
                 print("Detected formants:")
                 print(f"\tR1: {formants[0]:.0f}Hz")
                 print(f"\tR2: {formants[1]:.0f}Hz")
